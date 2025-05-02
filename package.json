@@ -1,0 +1,30 @@
+{
+  "name": "ui",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "node --experimental-strip-types scripts/run.ts",
+    "build": "waku build",
+    "start": "waku start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-server-dom-webpack": "19.1.0",
+    "recharts": "^2.15.3",
+    "use-local-storage-state": "^19.5.0",
+    "waku": "0.22.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.4",
+    "@types/react": "19.1.2",
+    "@types/react-dom": "19.1.2",
+    "postcss": "8.5.3",
+    "tailwindcss": "4.1.4",
+    "typescript": "5.8.3"
+  },
+  "packageManager": "pnpm@10.8.0+sha512.0e82714d1b5b43c74610193cb20734897c1d00de89d0e18420aebc5977fa13d780a9cb05734624e81ebd81cc876cd464794850641c48b9544326b5622ca29971"
+}
