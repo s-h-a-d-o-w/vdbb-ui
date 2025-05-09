@@ -115,7 +115,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                   </span>
                 </h4>
 
-                <div style={{ height: `${sortedData.length * 30}px` }}>
+                <div style={{ height: `${sortedData.length * 35}px` }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       layout="vertical"
