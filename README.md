@@ -1,4 +1,4 @@
-# vddb-ui
+# vdbb-ui
 
 A simple UI for rendering [VectorDBBench](https://github.com/zilliztech/VectorDBBench) results. (Prints well, so that charts can be shared easily via PDF.)
 
