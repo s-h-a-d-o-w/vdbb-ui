@@ -8,7 +8,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      <title>Vectordb Bench UI</title>
+      <title>VectorDBBench UI</title>
 
       <Suspense fallback={<div>Loading filters and charts...</div>}>
         <Results
