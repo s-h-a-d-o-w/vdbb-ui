@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, ReactNode } from 'react';
 
 interface FileListTooltipProps {
@@ -23,7 +21,7 @@ export const FileListTooltip = ({ files, children }: FileListTooltipProps) => {
       {children}
 
       {isVisible && files.length > 0 && (
-        <div className="absolute z-10 left-1 bg-white border border-gray-200 rounded shadow-lg p-3">
+        <div className="absolute z-10 left-1 bg-white border border-gray-200 rounded shadow-lg p-3 max-h-[400px] overflow-y-auto">
             <ul className="text-xs space-y-1">
               {files.map((file, index) => (
                 <li key={index} title={file}>

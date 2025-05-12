@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
 import useLocalStorageState from 'use-local-storage-state';
 import type { Results, ChartData } from '../server-utils/results';

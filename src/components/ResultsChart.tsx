@@ -1,11 +1,8 @@
-'use client';
-
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
-  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -13,6 +10,7 @@ import {
 } from 'recharts';
 import type { ChartData } from '../server-utils/results';
 import { metric_order, caseLabels } from '../client-utils/constants';
+import { FilenameTooltip } from './FilenameTooltip';
 
 interface ResultsChartProps {
   data: ChartData[];
@@ -54,6 +52,7 @@ const getColor = (dbName: string, index: number) => {
 
   return "#000000";
 };
+
 
 export const ResultsChart = ({ data }: ResultsChartProps) => {
   if (!data.length) {
@@ -135,6 +134,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                         className='text-xs'
                         tickCount={sortedData.length}
                       />
+                      <Tooltip content={<FilenameTooltip />} />
                       <Bar
                         dataKey={metric}
                         name={`${metric.replace('_', ' ')} (${unit})`}
@@ -161,5 +161,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
     </div>
   );
 };
+
+
 
 
