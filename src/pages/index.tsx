@@ -10,7 +10,7 @@ export default async function HomePage() {
     <div>
       <title>VectorDBBench UI</title>
 
-      <Suspense fallback={<div>Loading filters and charts...</div>}>
+      <Suspense fallback={<div className="dark:bg-gray-900 flex items-center justify-center h-screen text-center text-lg dark:text-gray-100">Loading data...</div>}>
         <Results
           results={results}
           chartData={chartData}

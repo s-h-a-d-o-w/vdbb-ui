@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Filters } from "./Filters";
 import { ResultsChart } from "./ResultsChart";
 import type { ChartData, Results as ResultsType } from "../server-utils/results";
-import ThemeToggle from "./ThemeToggle";
+import { ThemeToggle } from "./ThemeToggle";
 
 export const filterChartData = (
   data: ChartData[],
@@ -30,8 +30,6 @@ export const filterChartData = (
 export function Results({ results, chartData, dbNames, caseIds }: ResultsType) {
   const [filteredData, setFilteredData] = useState<ChartData[]>();
   const [currentStartDate, setCurrentStartDate] = useState<Date | undefined>();
-  const [selectedDbs, setSelectedDbs] = useState<string[]>(dbNames);
-  const [selectedCases, setSelectedCases] = useState<number[]>(caseIds);
 
   // Calculate file count and get unique filenames
   const { fileCount, filteredFiles } = useMemo(() => {
@@ -68,8 +66,6 @@ export function Results({ results, chartData, dbNames, caseIds }: ResultsType) {
     newSelectedCases: number[],
     startDate?: Date
   ) => {
-    setSelectedDbs(newSelectedDbs);
-    setSelectedCases(newSelectedCases);
     setCurrentStartDate(startDate);
 
     const newData = filterChartData(chartData, newSelectedDbs, newSelectedCases, startDate);
@@ -77,18 +73,23 @@ export function Results({ results, chartData, dbNames, caseIds }: ResultsType) {
   };
 
   return (
-    <div className="flex">
+    <div className="flex dark:bg-gray-900 dark:text-white">
       <div className="print:hidden">
         <Filters
           dbNames={dbNames}
           caseIds={caseIds}
-          onFiltersChange={handleFiltersChange}
+          onFiltersChange={(selectedDbs, selectedCases, startDate) => {
+            setTimeout(() => {
+              handleFiltersChange(selectedDbs, selectedCases, startDate);
+            }, 0);
+          }}
           fileCount={fileCount}
           filteredFiles={filteredFiles}
         />
       </div>
       <div className="flex-1 py-8 px-8 print:w-full">
         <h1 className="text-4xl font-bold tracking-tight mb-6">VectorDB Benchmark Results</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-200 mb-6">Label Format: <code className="dark:border-gray-100 border border-gray-300 dark:border-gray-700 p-1 rounded-md">{`<db_name> (<db_label>?, <index>, <num_concurrency>[])`}</code></p>
 
         {filteredData && <ResultsChart data={filteredData} />}
       </div>

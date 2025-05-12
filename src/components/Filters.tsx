@@ -3,6 +3,7 @@ import useLocalStorageState from 'use-local-storage-state';
 import type { Results, ChartData } from '../server-utils/results';
 import { caseLabels } from '../client-utils/constants';
 import { FileListTooltip } from './FileListTooltip';
+import { Checkbox } from './CheckBox';
 
 interface FiltersProps {
   dbNames: Results['dbNames'];
@@ -125,9 +126,7 @@ export const Filters = ({ dbNames, caseIds, onFiltersChange, fileCount = 0, filt
   const groupedCases = getGroupedCases();
 
   return (
-    <div className="h-full bg-gray-50 p-4 border-r border-b border-gray-200 w-64 shrink-0">
-      <h2 className="text-xl font-bold mb-4">Filters</h2>
-
+    <div className="h-full bg-gray-50 p-4 border-r border-b border-gray-200 w-64 shrink-0 dark:bg-gray-800 dark:border-gray-600">
       <div className="mb-4">
         <div className="mb-2">
           <label className="text-sm mb-1 mr-2">Only use results created after:</label>
@@ -141,8 +140,16 @@ export const Filters = ({ dbNames, caseIds, onFiltersChange, fileCount = 0, filt
           />
         </div>
         <FileListTooltip files={filteredFiles}>
-          <div className="bg-blue-100 p-2 rounded text-sm relative">
-            {fileCount} files match. ℹ️
+          <div className="dark:bg-gray-700 bg-gray-200 p-2 rounded text-sm relative flex items-center">
+            {fileCount} files match <svg className="ml-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 416.979 416.979">
+              <g>
+                <path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85
+		c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786
+		c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576
+		c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765
+		c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"/>
+              </g>
+            </svg>
           </div>
         </FileListTooltip>
       </div>
@@ -153,7 +160,7 @@ export const Filters = ({ dbNames, caseIds, onFiltersChange, fileCount = 0, filt
           <div>
             <button
               onClick={selectAllDbs}
-              className="bg-blue-500 text-white px-2 py-1 text-xs rounded mr-2"
+              className="bg-primary text-white px-2 py-1 text-xs rounded mr-2"
             >
               Select All
             </button>
@@ -167,15 +174,12 @@ export const Filters = ({ dbNames, caseIds, onFiltersChange, fileCount = 0, filt
         </div>
         <div className="flex flex-col">
           {dbNames.map(dbName => (
-            <label key={dbName} className="flex items-center mb-2">
-              <input
-                type="checkbox"
-                checked={selectedDbs.includes(dbName)}
-                onChange={() => handleDbToggle(dbName)}
-                className="mr-1"
-              />
-              {dbName}
-            </label>
+            <Checkbox
+              checked={selectedDbs.includes(dbName)}
+              onChange={() => handleDbToggle(dbName)}
+              label={dbName}
+              key={dbName}
+            />
           ))}
         </div>
       </div>
@@ -186,7 +190,7 @@ export const Filters = ({ dbNames, caseIds, onFiltersChange, fileCount = 0, filt
           <div>
             <button
               onClick={selectAllCases}
-              className="bg-blue-500 text-white px-2 py-1 text-xs rounded mr-2"
+              className="bg-primary text-white px-2 py-1 text-xs rounded mr-2"
             >
               Select All
             </button>
@@ -201,18 +205,15 @@ export const Filters = ({ dbNames, caseIds, onFiltersChange, fileCount = 0, filt
 
         {groupedCases.map(group => (
           <div key={group.title} className="mb-3">
-            <h4 className="text-sm font-medium mb-1 text-gray-700">{group.title}</h4>
+            <h4 className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{group.title}</h4>
             <div className="flex flex-col pl-2">
               {group.cases.map(caseId => (
-                <label key={caseId} className="flex items-center mb-2">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selectedCases.includes(caseId)}
                     onChange={() => handleCaseToggle(caseId)}
-                    className="mr-1"
+                    label={caseLabels[caseId]}
+                    key={caseId}
                   />
-                  {caseLabels[caseId]}
-                </label>
               ))}
             </div>
           </div>
@@ -221,3 +222,4 @@ export const Filters = ({ dbNames, caseIds, onFiltersChange, fileCount = 0, filt
     </div>
   );
 };
+

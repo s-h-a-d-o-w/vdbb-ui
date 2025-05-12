@@ -29,21 +29,19 @@ function isLessBetter(metric: string) {
 }
 
 const getColor = (dbName: string, index: number) => {
-  // Base color: hsl(154, 90%, 50%)
-  // Others partly perceptually tweaked.
   const predefinedColors = {
-    'AWSOpenSearch': "hsl(34, 100%, 60%)",
-    'ElasticCloud': "hsl(69, 90%, 60%)",
-    "LanceDB": "hsl(154, 90%, 50%)",
-    'Milvus': "hsl(214, 100%, 70%)",
-    'PgVector': "hsl(274, 100%, 70%)",
-    'Pinecone': "hsl(334, 90%, 50%)",
-    'QdrantCloud': "hsl(334, 90%, 35%)",
-    'Redis': "hsl(274, 90%, 35%)",
-    'TiDB': "hsl(214, 90%, 35%)",
-    'Vespa': "hsl(154, 90%, 35%)",
-    'WeaviateCloud': "hsl(69, 90%, 35%)",
-    'ZillizCloud': "hsl(34, 90%, 35%)",
+    'AWSOpenSearch': "var(--color-orange-400)",
+    'ElasticCloud': "var(--color-yellow-400)",
+    "LanceDB": "var(--color-green-400)",
+    'Milvus': "var(--color-teal-400)",
+    'PgVector': "var(--color-primary)",
+    'Pinecone': "var(--color-indigo-400)",
+    'QdrantCloud': "var(--color-rose-400)",
+    'Redis': "var(--color-rose-600)",
+    'TiDB': "var(--color-indigo-600)",
+    'Vespa': "var(--color-teal-600)",//
+    'WeaviateCloud': "var(--color-green-600)",//
+    'ZillizCloud': "var(--color-orange-600)",
   };
 
   if (dbName in predefinedColors) {
@@ -53,6 +51,16 @@ const getColor = (dbName: string, index: number) => {
   return "#000000";
 };
 
+function Tick({ tickProps, dy, textAnchor }: { tickProps: any, dy: number, textAnchor: string }) {
+  const { x, y, payload } = tickProps;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text x={0} y={0} dy={dy} textAnchor={textAnchor} fill="currentColor" className="text-xs">
+        {payload.value}
+      </text>
+    </g>
+  );
+}
 
 export const ResultsChart = ({ data }: ResultsChartProps) => {
   if (!data.length) {
@@ -109,7 +117,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                 <h4 className="text-md font-medium mb-1">
                   {[metric[0]!.toLocaleUpperCase(), metric.slice(1).toLocaleLowerCase().replaceAll('_', ' ')].join('')}
                   {!["qps", "recall"].includes(metric) && ` in ${unit}`}
-                  <span className="text-xs text-gray-500 ml-1">
+                  <span className="text-xs text-gray-500 ml-1 dark:text-gray-300">
                     ({isLessBetter(metric) ? 'less' : 'more'} is better)
                   </span>
                 </h4>
@@ -121,18 +129,22 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                       data={sortedData}
                       margin={{ bottom: 10, left: 50, right: 75 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" />
+                      <CartesianGrid strokeDasharray="3 3" horizontalPoints={[0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]} />
                       <XAxis
                         type="number"
-                        className='text-xs'
+                        tick={(props) => (
+                          <Tick dy={16} textAnchor="middle" tickProps={props} />
+                        )}
                       />
                       <YAxis
                         allowDuplicatedCategory
                         type="category"
                         dataKey="db_label"
                         width={240}
-                        className='text-xs'
                         tickCount={sortedData.length}
+                        tick={(props) => (
+                          <Tick dy={4} textAnchor="end" tickProps={props} />
+                        )}
                       />
                       <Tooltip content={<FilenameTooltip />} />
                       <Bar
@@ -141,10 +153,9 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                         label={{
                           position: 'right',
                           formatter: (entry: any) => entry,
-                          className: 'fill-black'
+                          className: 'text-xs fill-black dark:fill-white'
                         }}
                         isAnimationActive={false}
-                        className='text-xs'
                       >
                         {sortedData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={getColor(entry.db_name, index)} />
