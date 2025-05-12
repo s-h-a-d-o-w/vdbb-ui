@@ -16,6 +16,9 @@ interface ResultsChartProps {
   data: ChartData[];
 }
 
+const BAR_HEIGHT = 30;
+const AXIS_HEIGHT_AND_PADDING = 40;
+
 export const metric_unit_map: Record<string, string> = {
   qps: 'QPS',
   serial_latency_p99: 'ms',
@@ -111,6 +114,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
             });
 
             const unit = metric_unit_map[metric] || '';
+            const height = sortedData.length * BAR_HEIGHT + AXIS_HEIGHT_AND_PADDING;
 
             return (
               <div key={metric} className="mb-6 print:break-inside-avoid">
@@ -122,14 +126,14 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                   </span>
                 </h4>
 
-                <div style={{ height: `${sortedData.length * 35}px` }}>
+                <div style={{ height: `${height}px` }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       layout="vertical"
                       data={sortedData}
                       margin={{ bottom: 10, left: 50, right: 75 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" horizontalPoints={[0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]} />
+                      <CartesianGrid strokeDasharray="3 3" horizontalPoints={Array.from({ length: Math.ceil((height - AXIS_HEIGHT_AND_PADDING) / BAR_HEIGHT) }, (_, i) => i * BAR_HEIGHT)} />
                       <XAxis
                         type="number"
                         tick={(props) => (

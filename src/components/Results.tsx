@@ -73,7 +73,7 @@ export function Results({ results, chartData, dbNames, caseIds }: ResultsType) {
   };
 
   return (
-    <div className="flex dark:bg-gray-900 dark:text-white">
+    <div className="flex">
       <div className="print:hidden">
         <Filters
           dbNames={dbNames}

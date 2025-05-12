@@ -136,11 +136,11 @@ export const Filters = ({ dbNames, caseIds, onFiltersChange, fileCount = 0, filt
             onChange={handleStartDateChange}
             min={START_DATE}
             max={new Date().toISOString().split('T')[0]}
-            className="p-1 border border-gray-300 rounded"
+            className="border border-gray-300 rounded"
           />
         </div>
         <FileListTooltip files={filteredFiles}>
-          <div className="dark:bg-gray-700 bg-gray-200 p-2 rounded text-sm relative flex items-center">
+          <div className="dark:bg-gray-700 bg-gray-200 px-3 py-2 rounded text-sm relative inline-flex items-center">
             {fileCount} files match <svg className="ml-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 416.979 416.979">
               <g>
                 <path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85

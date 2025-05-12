@@ -8,7 +8,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const data = await getData();
 
   return (
-    <div className="font-['Nunito']">
+    <div className="font-['Nunito'] dark:bg-gray-900 dark:text-white">
       <meta name="description" content={data.description} />
       <link rel="icon" type="image/png" href={data.icon} />
       <main>
