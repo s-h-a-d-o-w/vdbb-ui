@@ -2,7 +2,7 @@
 
 A simple UI for rendering [VectorDBBench](https://github.com/zilliztech/VectorDBBench) results. (Prints well, so that charts can be shared easily via PDF.)
 
-![screenshot](./assets/screenshot.png?cache-buster=2)
+![screenshot](./assets/screenshot.png)
 
 ## How to use
 

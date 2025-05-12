@@ -133,7 +133,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                       data={sortedData}
                       margin={{ bottom: 10, left: 50, right: 75 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" horizontalPoints={Array.from({ length: Math.ceil((height - AXIS_HEIGHT_AND_PADDING) / BAR_HEIGHT) }, (_, i) => i * BAR_HEIGHT)} />
+                      <CartesianGrid strokeDasharray="3 3" horizontalPoints={Array.from({ length: Math.ceil((height - AXIS_HEIGHT_AND_PADDING) / 100) }, (_, i) => i * 100)} />
                       <XAxis
                         type="number"
                         tick={(props) => (
