@@ -2,7 +2,7 @@
 
 A simple UI for rendering [VectorDBBench](https://github.com/zilliztech/VectorDBBench) results. (Prints well, so that charts can be shared easily via PDF.)
 
-![screenshot](./assets/screenshot.png)
+![screenshot](./assets/screenshot.png?cache-buster=2)
 
 ## How to use
 
@@ -19,6 +19,6 @@ A simple UI for rendering [VectorDBBench](https://github.com/zilliztech/VectorDB
 
 VectorDBBench has a UI included, so why not just use that?
 
-- I experienced crashes: https://github.com/zilliztech/VectorDBBench/issues/512
+- ~~I experienced crashes: https://github.com/zilliztech/VectorDBBench/issues/512~~ (Fixed.)
 - But also... I got a bit frustrated with the fact that filters aren't persisted in local storage and when looking at the changes to the streamlit code that AI suggested to achieve that, I figured creating this from scratch would be easier. 😄
 - (I've been looking for an excuse to try out waku. ☺️)
