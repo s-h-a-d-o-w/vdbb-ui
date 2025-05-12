@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Filters } from "./Filters";
 import { ResultsChart } from "./ResultsChart";
 import type { ChartData, Results as ResultsType } from "../server-utils/results";
+import ThemeToggle from "./ThemeToggle";
 
 export const filterChartData = (
   data: ChartData[],
@@ -90,6 +91,9 @@ export function Results({ results, chartData, dbNames, caseIds }: ResultsType) {
         <h1 className="text-4xl font-bold tracking-tight mb-6">VectorDB Benchmark Results</h1>
 
         {filteredData && <ResultsChart data={filteredData} />}
+      </div>
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
       </div>
     </div>
   );
