@@ -1,6 +1,6 @@
-import '../styles.css';
+import "../styles.css";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 type RootLayoutProps = { children: ReactNode };
 
@@ -11,24 +11,22 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     <div className="font-['Nunito'] dark:bg-gray-900 dark:text-white">
       <meta name="description" content={data.description} />
       <link rel="icon" type="image/png" href={data.icon} />
-      <main>
-        {children}
-      </main>
+      <main>{children}</main>
     </div>
   );
 }
 
-const getData = async () => {
+const getData = () => {
   const data = {
-    description: 'An internet website!',
-    icon: '/images/favicon.png',
+    description: "VectorDBBench UI",
+    icon: "/images/favicon.png",
   };
 
   return data;
 };
 
-export const getConfig = async () => {
+export const getConfig = () => {
   return {
-    render: 'static',
+    render: "static",
   } as const;
 };

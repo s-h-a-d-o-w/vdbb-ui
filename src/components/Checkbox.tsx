@@ -1,7 +1,17 @@
+"use client";
+
 import { Checkbox as RadixCheckbox } from "radix-ui";
 import { CheckIcon } from "@radix-ui/react-icons";
 
-export function Checkbox({ checked, onChange, label }: { checked: boolean, onChange: () => void, label: string }) {
+export function Checkbox({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  label: string;
+}) {
   return (
     <label className="flex items-center mb-2">
       <RadixCheckbox.Root
@@ -13,8 +23,9 @@ export function Checkbox({ checked, onChange, label }: { checked: boolean, onCha
           <CheckIcon />
         </RadixCheckbox.Indicator>
       </RadixCheckbox.Root>
-      <span className="ml-2 text-sm text-gray-700 dark:text-gray-200">{label}</span>
+      <span className="ml-2 text-sm text-gray-700 dark:text-gray-200">
+        {label}
+      </span>
     </label>
-  )
+  );
 }
-

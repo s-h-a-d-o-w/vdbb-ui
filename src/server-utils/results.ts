@@ -1,6 +1,6 @@
-import { readdir, readFile } from 'fs/promises';
-import path from 'path';
-import { caseLabels } from '../client-utils/constants';
+import { readdir, readFile } from "fs/promises";
+import path from "path";
+import { caseLabels } from "../client-utils/constants";
 
 export interface Metric {
   max_load_count: number;
@@ -43,7 +43,7 @@ export interface TaskConfig {
     concurrency_search_config: {
       num_concurrency: number[];
       concurrency_duration: number;
-    }
+    };
   };
 }
 
@@ -78,11 +78,10 @@ export interface ChartData {
 }
 
 export type Results = {
-  results: TestResult[];
   chartData: ChartData[];
   dbNames: string[];
   caseIds: Array<keyof typeof caseLabels>;
-}
+};
 
 export const extractDateFromFilename = (filename: string): Date | null => {
   // Look for a pattern like "result_20240512_..." or any 8-digit sequence
@@ -100,10 +99,10 @@ export const extractDateFromFilename = (filename: string): Date | null => {
 // Read and process all result files
 export const getAllResults = async (): Promise<Results> => {
   try {
-    const files = await readdir('./private', { recursive: true });
-    const resultFiles = files.filter(file => {
+    const files = await readdir("./private", { recursive: true });
+    const resultFiles = files.filter((file) => {
       const basename = path.basename(file);
-      return basename.startsWith('result_') && basename.endsWith('.json');
+      return basename.startsWith("result_") && basename.endsWith(".json");
     });
 
     const results: TestResult[] = [];
@@ -112,7 +111,7 @@ export const getAllResults = async (): Promise<Results> => {
       const basename = path.basename(file);
       const fileDate = extractDateFromFilename(basename);
 
-      const content = await readFile(path.join('./private', file), 'utf-8');
+      const content = await readFile(path.join("./private", file), "utf-8");
       const result = JSON.parse(content) as TestResult;
 
       // Add the fileDate and filename to the result object
@@ -125,44 +124,44 @@ export const getAllResults = async (): Promise<Results> => {
     }
 
     const chartData = processResultsForChart(results);
-    const dbNames = [...new Set(chartData.map(d => d.db_name))];
-    const caseIds = [...new Set(chartData.map(d => d.case_id))];
+    const dbNames = [...new Set(chartData.map((d) => d.db_name))];
+    const caseIds = [...new Set(chartData.map((d) => d.case_id))];
 
-    return { results, chartData, dbNames, caseIds };
+    return { chartData, dbNames, caseIds };
   } catch (error) {
-    console.error('Error reading result files:', error);
-    return { results: [], chartData: [], dbNames: [], caseIds: [] };
+    console.error("Error reading result files:", error);
+    return { chartData: [], dbNames: [], caseIds: [] };
   }
 };
 
 function generateLabel(config: TaskConfig, metrics: Metric): string {
-  const label = config.db_config.db_label ?
-    config.db_config.db_label.length > 10 ?
-      config.db_config.db_label.slice(0, 10) + "..." :
-      config.db_config.db_label
+  const label = config.db_config.db_label
+    ? config.db_config.db_label.length > 10
+      ? config.db_config.db_label.slice(0, 10) + "..."
+      : config.db_config.db_label
     : undefined;
 
   // metrics.conc_num_list isn't defined for capacity cases
-  return `${config.db} (${[label, config.db_case_config.index || 'No index info', metrics.conc_num_list ? metrics.conc_num_list.join(', ') + 'T' : undefined].filter(Boolean).join(', ')})`;
+  return `${config.db} (${[label, config.db_case_config.index || "No index info", metrics.conc_num_list ? metrics.conc_num_list.join(", ") + "T" : undefined].filter(Boolean).join(", ")})`;
 }
 
 const processResultsForChart = (results: TestResult[]): ChartData[] => {
-  const allCaseResults: CaseResult[] = results.flatMap(r => {
+  const allCaseResults: CaseResult[] = results.flatMap((r) => {
     // Add fileDate and filename to each case result
-    return r.results.map(caseResult => ({
+    return r.results.map((caseResult) => ({
       ...caseResult,
       fileDate: r.fileDate,
-      filename: r.filename
+      filename: r.filename,
     }));
   });
 
-  return allCaseResults.map(caseResult => {
+  return allCaseResults.map((caseResult) => {
     const metricsSet = new Set<string>();
     const metrics = caseResult.metrics;
 
     // Add metrics that exist to the set
     Object.entries(metrics).forEach(([key, value]) => {
-      if (typeof value === 'number' && value > 1e-7 && !Array.isArray(value)) {
+      if (typeof value === "number" && value > 1e-7 && !Array.isArray(value)) {
         metricsSet.add(key);
       }
     });
@@ -176,7 +175,8 @@ const processResultsForChart = (results: TestResult[]): ChartData[] => {
       fileDate: (caseResult as any).fileDate,
       filename: (caseResult as any).filename,
       ...metrics,
-      serial_latency_p99: Math.round(metrics.serial_latency_p99 * 1000 * 100) / 100,
+      serial_latency_p99:
+        Math.round(metrics.serial_latency_p99 * 1000 * 100) / 100,
       qps: Math.round(metrics.qps),
       recall: metrics.recall,
       load_duration: Math.round(metrics.load_duration * 10) / 10,

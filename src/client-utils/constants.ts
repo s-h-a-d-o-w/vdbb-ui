@@ -16,13 +16,13 @@ export const caseLabels = {
   15: "Filtering (5M, 1536D, 99%)",
   50: "Performance (50K, 1536D)",
   100: "Custom",
-  101: "Custom Dataset Performance"
+  101: "Custom Dataset Performance",
 } as const;
 
 export const metric_order = [
-  'qps',
-  'serial_latency_p99',
-  'recall',
-  'load_duration',
-  'max_load_count',
+  "qps",
+  "serial_latency_p99",
+  "recall",
+  "load_duration",
+  "max_load_count",
 ];

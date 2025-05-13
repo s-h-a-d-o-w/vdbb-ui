@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Bar,
   BarChart,
@@ -6,11 +8,11 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
-} from 'recharts';
-import type { ChartData } from '../server-utils/results';
-import { metric_order, caseLabels } from '../client-utils/constants';
-import { FilenameTooltip } from './FilenameTooltip';
+  YAxis,
+} from "recharts";
+import type { ChartData } from "../server-utils/results";
+import { metric_order, caseLabels } from "../client-utils/constants";
+import { FilenameTooltip } from "./FilenameTooltip";
 
 interface ResultsChartProps {
   data: ChartData[];
@@ -20,31 +22,31 @@ const BAR_HEIGHT = 30;
 const AXIS_HEIGHT_AND_PADDING = 40;
 
 export const metric_unit_map: Record<string, string> = {
-  qps: 'QPS',
-  serial_latency_p99: 'ms',
-  recall: '%',
-  load_duration: 's',
-  max_load_count: 'k',
+  qps: "QPS",
+  serial_latency_p99: "ms",
+  recall: "%",
+  load_duration: "s",
+  max_load_count: "k",
 };
 
 function isLessBetter(metric: string) {
-  return ['load_duration', 'serial_latency_p99'].includes(metric);
+  return ["load_duration", "serial_latency_p99"].includes(metric);
 }
 
-const getColor = (dbName: string, index: number) => {
+const getColor = (dbName: string) => {
   const predefinedColors = {
-    'AWSOpenSearch': "var(--color-orange-400)",
-    'ElasticCloud': "var(--color-yellow-400)",
-    "LanceDB": "var(--color-green-400)",
-    'Milvus': "var(--color-teal-400)",
-    'PgVector': "var(--color-primary)",
-    'Pinecone': "var(--color-indigo-400)",
-    'QdrantCloud': "var(--color-rose-400)",
-    'Redis': "var(--color-rose-600)",
-    'TiDB': "var(--color-indigo-600)",
-    'Vespa': "var(--color-teal-600)",//
-    'WeaviateCloud': "var(--color-green-600)",//
-    'ZillizCloud': "var(--color-orange-600)",
+    AWSOpenSearch: "var(--color-orange-400)",
+    ElasticCloud: "var(--color-yellow-400)",
+    LanceDB: "var(--color-green-400)",
+    Milvus: "var(--color-teal-400)",
+    PgVector: "var(--color-primary)",
+    Pinecone: "var(--color-indigo-400)",
+    QdrantCloud: "var(--color-rose-400)",
+    Redis: "var(--color-rose-600)",
+    TiDB: "var(--color-indigo-600)",
+    Vespa: "var(--color-teal-600)", //
+    WeaviateCloud: "var(--color-green-600)", //
+    ZillizCloud: "var(--color-orange-600)",
   };
 
   if (dbName in predefinedColors) {
@@ -54,11 +56,26 @@ const getColor = (dbName: string, index: number) => {
   return "#000000";
 };
 
-function Tick({ tickProps, dy, textAnchor }: { tickProps: any, dy: number, textAnchor: string }) {
+function Tick({
+  tickProps,
+  dy,
+  textAnchor,
+}: {
+  tickProps: any;
+  dy: number;
+  textAnchor: string;
+}) {
   const { x, y, payload } = tickProps;
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dy={dy} textAnchor={textAnchor} fill="currentColor" className="text-xs">
+      <text
+        x={0}
+        y={0}
+        dy={dy}
+        textAnchor={textAnchor}
+        fill="currentColor"
+        className="text-xs"
+      >
         {payload.value}
       </text>
     </g>
@@ -72,57 +89,73 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
 
   // Get available metrics from the data
   const availableMetrics = new Set<string>();
-  data.forEach(item => {
-    item.metricsSet?.forEach(metric => {
+  data.forEach((item) => {
+    item.metricsSet?.forEach((metric) => {
       if (metric_order.includes(metric)) {
         availableMetrics.add(metric);
       }
     });
   });
 
-  const metrics = metric_order.filter(metric => availableMetrics.has(metric));
+  const metrics = metric_order.filter((metric) => availableMetrics.has(metric));
 
   // Group data by case name
-  const dataByCase = data.reduce((acc, item) => {
-    if (!acc[item.case_id]) {
-      acc[item.case_id] = [];
-    }
-    acc[item.case_id]!.push(item);
-    return acc;
-  }, {} as Record<keyof typeof caseLabels, ChartData[]>);
+  const dataByCase = data.reduce(
+    (acc, item) => {
+      if (!acc[item.case_id]) {
+        acc[item.case_id] = [];
+      }
+      acc[item.case_id]!.push(item);
+      return acc;
+    },
+    {} as Record<keyof typeof caseLabels, ChartData[]>,
+  );
 
   return (
     <div>
       {Object.entries(dataByCase).map(([caseId, caseData]) => (
         <div key={caseId} className="mb-8">
-          <h3 className="text-lg font-semibold mb-2">{caseLabels[parseInt(caseId, 10) as keyof typeof caseLabels]}</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            {caseLabels[parseInt(caseId, 10) as keyof typeof caseLabels]}
+          </h3>
 
-          {metrics.map(metric => {
-            const filteredData = caseData.filter(item =>
-              item.metricsSet?.includes(metric) &&
-              typeof item[metric as keyof ChartData] === 'number' &&
-              (item[metric as keyof ChartData] as number) > 1e-7
+          {metrics.map((metric) => {
+            const filteredData = caseData.filter(
+              (item) =>
+                item.metricsSet?.includes(metric) &&
+                typeof item[metric as keyof ChartData] === "number" &&
+                (item[metric as keyof ChartData] as number) > 1e-7,
             );
 
             if (!filteredData.length) return null;
 
             const sortedData = [...filteredData].sort((a, b) => {
               if (isLessBetter(metric)) {
-                return (a[metric as keyof ChartData] as number) - (b[metric as keyof ChartData] as number);
+                return (
+                  (a[metric as keyof ChartData] as number) -
+                  (b[metric as keyof ChartData] as number)
+                );
               }
-              return (b[metric as keyof ChartData] as number) - (a[metric as keyof ChartData] as number);
+              return (
+                (b[metric as keyof ChartData] as number) -
+                (a[metric as keyof ChartData] as number)
+              );
             });
 
-            const unit = metric_unit_map[metric] || '';
-            const height = sortedData.length * BAR_HEIGHT + AXIS_HEIGHT_AND_PADDING;
+            const unit = metric_unit_map[metric] || "";
+            const height =
+              sortedData.length * BAR_HEIGHT + AXIS_HEIGHT_AND_PADDING;
 
             return (
               <div key={metric} className="mb-6 print:break-inside-avoid">
                 <h4 className="text-md font-medium mb-1">
-                  {[metric[0]!.toLocaleUpperCase(), metric.slice(1).toLocaleLowerCase().replaceAll('_', ' ')].join('')}
+                  {[
+                    metric[0]!.toLocaleUpperCase(),
+                    metric.slice(1).toLocaleLowerCase().replaceAll("_", " "),
+                  ].join("")}
                   {!["qps", "recall"].includes(metric) && ` in ${unit}`}
                   <span className="text-xs text-gray-500 ml-1 dark:text-gray-300">
-                    ({isLessBetter(metric) ? 'less' : 'more'} is better)
+                    ({isLessBetter(metric) ? "less" : "more"} is better)
                   </span>
                 </h4>
 
@@ -133,7 +166,17 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                       data={sortedData}
                       margin={{ bottom: 10, left: 50, right: 75 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" horizontalPoints={Array.from({ length: Math.ceil((height - AXIS_HEIGHT_AND_PADDING) / 100) }, (_, i) => i * 100)} />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        horizontalPoints={Array.from(
+                          {
+                            length: Math.ceil(
+                              (height - AXIS_HEIGHT_AND_PADDING) / 100,
+                            ),
+                          },
+                          (_, i) => i * 100,
+                        )}
+                      />
                       <XAxis
                         type="number"
                         tick={(props) => (
@@ -153,16 +196,19 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                       <Tooltip content={<FilenameTooltip />} />
                       <Bar
                         dataKey={metric}
-                        name={`${metric.replace('_', ' ')} (${unit})`}
+                        name={`${metric.replace("_", " ")} (${unit})`}
                         label={{
-                          position: 'right',
+                          position: "right",
                           formatter: (entry: any) => entry,
-                          className: 'text-xs fill-black dark:fill-white'
+                          className: "text-xs fill-black dark:fill-white",
                         }}
                         isAnimationActive={false}
                       >
                         {sortedData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={getColor(entry.db_name, index)} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={getColor(entry.db_name)}
+                          />
                         ))}
                       </Bar>
                     </BarChart>
@@ -176,7 +222,3 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
     </div>
   );
 };
-
-
-
-
