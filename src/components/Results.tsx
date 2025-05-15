@@ -12,12 +12,12 @@ import { ThemeToggle } from "./ThemeToggle";
 export const filterChartData = (
   data: ChartData[],
   selectedDbs: string[],
-  selectedCases: number[],
+  selectedCase: number,
   startDate?: Date,
 ): ChartData[] => {
   return data.filter((item) => {
     const dbFilter = selectedDbs.includes(item.db_name);
-    const caseFilter = selectedCases.includes(item.case_id);
+    const caseFilter = selectedCase === item.case_id;
     let dateFilter = true;
 
     if (startDate && item.fileDate) {
@@ -64,7 +64,7 @@ export function Results({ chartData, dbNames, caseIds }: ResultsType) {
 
   const handleFiltersChange = (
     newSelectedDbs: string[],
-    newSelectedCases: number[],
+    newSelectedCase: number,
     startDate?: Date,
   ) => {
     setCurrentStartDate(startDate);
@@ -72,7 +72,7 @@ export function Results({ chartData, dbNames, caseIds }: ResultsType) {
     const newData = filterChartData(
       chartData,
       newSelectedDbs,
-      newSelectedCases,
+      newSelectedCase,
       startDate,
     );
     setFilteredData(newData);
@@ -84,9 +84,9 @@ export function Results({ chartData, dbNames, caseIds }: ResultsType) {
         <Filters
           dbNames={dbNames}
           caseIds={caseIds}
-          onFiltersChange={(selectedDbs, selectedCases, startDate) => {
+          onFiltersChange={(selectedDbs, selectedCase, startDate) => {
             setTimeout(() => {
-              handleFiltersChange(selectedDbs, selectedCases, startDate);
+              handleFiltersChange(selectedDbs, selectedCase, startDate);
             }, 0);
           }}
           fileCount={fileCount}

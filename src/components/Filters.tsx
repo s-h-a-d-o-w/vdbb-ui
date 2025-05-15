@@ -7,13 +7,14 @@ import { caseLabels } from "../client-utils/constants";
 import { FileListTooltip } from "./FileListTooltip";
 import { Checkbox } from "./Checkbox";
 import { InfoIcon } from "./InfoIcon";
-
+import { Radiobox } from "./Radiobox";
+import { RadioGroup } from "radix-ui";
 interface FiltersProps {
   dbNames: Results["dbNames"];
   caseIds: Results["caseIds"];
   onFiltersChange: (
     selectedDbs: string[],
-    selectedCases: number[],
+    selectedCase: number,
     startDate?: Date,
   ) => void;
   fileCount?: number;
@@ -61,37 +62,36 @@ export const Filters = ({
     "dbNames",
     { defaultValue: dbNames },
   );
-  const [selectedCases, setSelectedCases] = useLocalStorageState<number[]>(
-    "caseNames",
-    { defaultValue: caseIds },
-  );
+  const [selectedCase, setSelectedCase] = useLocalStorageState<number>("case", {
+    defaultValue: caseIds[0]!,
+  });
   const [startDate, setStartDate] = useLocalStorageState<string>("startDate", {
     defaultValue: START_DATE,
   });
   const previousDbs = useRef(selectedDbs);
-  const previousCases = useRef(selectedCases);
+  const previousCase = useRef(selectedCase);
   const previousStartDate = useRef(startDate);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     if (!isInitialized) {
-      onFiltersChange(selectedDbs, selectedCases, new Date(startDate));
+      onFiltersChange(selectedDbs, selectedCase, new Date(startDate));
       setIsInitialized(true);
     }
-  }, [isInitialized, onFiltersChange, selectedDbs, selectedCases, startDate]);
+  }, [isInitialized, onFiltersChange, selectedDbs, selectedCase, startDate]);
 
   useEffect(() => {
     if (
       previousDbs.current !== selectedDbs ||
-      previousCases.current !== selectedCases ||
+      previousCase.current !== selectedCase ||
       previousStartDate.current !== startDate
     ) {
-      onFiltersChange(selectedDbs, selectedCases, new Date(startDate));
+      onFiltersChange(selectedDbs, selectedCase, new Date(startDate));
       previousDbs.current = selectedDbs;
-      previousCases.current = selectedCases;
+      previousCase.current = selectedCase;
       previousStartDate.current = startDate;
     }
-  }, [selectedDbs, selectedCases, startDate, onFiltersChange]);
+  }, [selectedDbs, selectedCase, startDate, onFiltersChange]);
 
   const handleDbToggle = (dbName: string) => {
     const newSelection = selectedDbs.includes(dbName)
@@ -101,13 +101,9 @@ export const Filters = ({
     setSelectedDbs(newSelection);
   };
 
-  const handleCaseToggle = (caseName: number) => {
-    const newSelection = selectedCases.includes(caseName)
-      ? selectedCases.filter((c) => c !== caseName)
-      : [...selectedCases, caseName];
-
-    setSelectedCases(newSelection);
-  };
+  // const handleCaseToggle = (caseName: number) => {
+  //   setSelectedCase(caseName);
+  // };
 
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "") {
@@ -125,14 +121,6 @@ export const Filters = ({
     setSelectedDbs([]);
   };
 
-  const selectAllCases = () => {
-    setSelectedCases([...caseIds]);
-  };
-
-  const clearAllCases = () => {
-    setSelectedCases([]);
-  };
-
   // Generate list of available cases grouped by category
   const getGroupedCases = () => {
     const availableCaseIds = new Set(caseIds);
@@ -148,11 +136,9 @@ export const Filters = ({
 
   return (
     <div className="h-full bg-gray-50 p-4 border-r border-b border-gray-200 w-64 shrink-0 dark:bg-gray-800 dark:border-gray-600">
-      <div className="mb-4">
+      <h3 className="font-semibold mb-2">Results after</h3>
+      <div className="mb-4 pl-2">
         <div className="mb-2">
-          <label className="text-sm mb-1 mr-2">
-            Only use results created after:
-          </label>
           <input
             type="date"
             value={startDate}
@@ -187,7 +173,7 @@ export const Filters = ({
             </button>
           </div>
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col pl-2">
           {dbNames.map((dbName) => (
             <Checkbox
               checked={selectedDbs.includes(dbName)}
@@ -200,41 +186,29 @@ export const Filters = ({
       </div>
 
       <div>
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-semibold">Case Filter</h3>
-          <div>
-            <button
-              onClick={selectAllCases}
-              className="bg-primary text-white px-2 py-1 text-xs rounded mr-2"
-            >
-              Select All
-            </button>
-            <button
-              onClick={clearAllCases}
-              className="bg-gray-500 text-white px-2 py-1 text-xs rounded"
-            >
-              Clear All
-            </button>
-          </div>
-        </div>
+        <h3 className="font-semibold mb-2">Case Filter</h3>
 
-        {groupedCases.map((group) => (
-          <div key={group.title} className="mb-3">
-            <h4 className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-              {group.title}
-            </h4>
-            <div className="flex flex-col pl-2">
-              {group.cases.map((caseId) => (
-                <Checkbox
-                  checked={selectedCases.includes(caseId)}
-                  onChange={() => handleCaseToggle(caseId)}
-                  label={caseLabels[caseId]}
-                  key={caseId}
-                />
-              ))}
+        <RadioGroup.Root
+          value={selectedCase.toString()}
+          onValueChange={(value) => setSelectedCase(parseInt(value, 10))}
+        >
+          {groupedCases.map((group) => (
+            <div key={group.title} className="mb-3">
+              <h4 className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                {group.title}
+              </h4>
+              <div className="flex flex-col pl-2">
+                {group.cases.map((caseId) => (
+                  <Radiobox
+                    label={caseLabels[caseId]}
+                    value={caseId.toString()}
+                    key={caseId}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </RadioGroup.Root>
       </div>
     </div>
   );
