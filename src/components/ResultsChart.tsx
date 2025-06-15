@@ -31,7 +31,7 @@ interface ResultsChartProps {
   data: ChartData[];
 }
 
-const BAR_HEIGHT = 30;
+const BAR_HEIGHT = 24;
 const AXIS_HEIGHT_AND_PADDING = 40;
 
 const metric_unit_map: Record<string, string> = {
@@ -228,6 +228,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                   ticks: {
                     font: {
                       size: 12,
+                      family: "'Nunito', sans-serif",
                     },
                     color: isDarkMode ? "white" : "black",
                   },
@@ -239,6 +240,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                   ticks: {
                     font: {
                       size: 12,
+                      family: "'Nunito', sans-serif",
                     },
                     color: isDarkMode ? "white" : "black",
                   },
