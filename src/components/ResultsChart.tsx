@@ -31,7 +31,7 @@ interface ResultsChartProps {
   data: ChartData[];
 }
 
-const BAR_HEIGHT = 24;
+const BAR_HEIGHT = 28;
 const AXIS_HEIGHT_AND_PADDING = 40;
 
 const metric_unit_map: Record<string, string> = {
@@ -73,13 +73,13 @@ const getBarColor = (dbName: string) => {
     : "#000000";
 };
 
-const tooltipColors = {
+const colors = {
   background: getCSSVar("--color-white"),
   border: getCSSVar("--color-gray-300"),
-  text: getCSSVar("--color-gray-600"),
+  text: getCSSVar("--color-gray-800"),
   darkBackground: getCSSVar("--color-gray-700"),
   darkBorder: getCSSVar("--color-gray-700"),
-  darkText: getCSSVar("--color-gray-300"),
+  darkText: getCSSVar("--color-gray-100"),
 } as const;
 
 export const ResultsChart = ({ data }: ResultsChartProps) => {
@@ -200,37 +200,27 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                   },
                   borderWidth: 1,
                   backgroundColor: isDarkMode
-                    ? tooltipColors.darkBackground
-                    : tooltipColors.background,
-                  borderColor: isDarkMode
-                    ? tooltipColors.darkBorder
-                    : tooltipColors.border,
-                  titleColor: isDarkMode
-                    ? tooltipColors.darkText
-                    : tooltipColors.text,
-                  bodyColor: isDarkMode
-                    ? tooltipColors.darkText
-                    : tooltipColors.text,
+                    ? colors.darkBackground
+                    : colors.background,
+                  borderColor: isDarkMode ? colors.darkBorder : colors.border,
+                  titleColor: isDarkMode ? colors.darkText : colors.text,
+                  bodyColor: isDarkMode ? colors.darkText : colors.text,
                 },
               },
               scales: {
                 x: {
                   border: {
-                    color: isDarkMode
-                      ? tooltipColors.darkBorder
-                      : tooltipColors.border,
+                    color: isDarkMode ? colors.darkBorder : colors.border,
                   },
                   grid: {
-                    color: isDarkMode
-                      ? tooltipColors.darkBorder
-                      : tooltipColors.border,
+                    color: isDarkMode ? colors.darkBorder : colors.border,
                   },
                   ticks: {
                     font: {
-                      size: 12,
+                      size: 14,
                       family: "'Nunito', sans-serif",
                     },
-                    color: isDarkMode ? "white" : "black",
+                    color: isDarkMode ? colors.darkText : colors.text,
                   },
                 },
                 y: {
@@ -239,10 +229,10 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                   },
                   ticks: {
                     font: {
-                      size: 12,
+                      size: 14,
                       family: "'Nunito', sans-serif",
                     },
-                    color: isDarkMode ? "white" : "black",
+                    color: isDarkMode ? colors.darkText : colors.text,
                   },
                 },
               },
