@@ -1,18 +1,31 @@
 "use client";
 
+import React from "react";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+  Legend,
+  ChartOptions,
+  TooltipItem,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 import type { ChartData } from "../server-utils/results";
 import { metric_order, caseLabels } from "../client-utils/constants";
-import { FilenameTooltip } from "./FilenameTooltip";
+import { useIsDarkMode } from "../hooks/useIsDarkMode";
+import type { ChartData as BarChartData } from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 interface ResultsChartProps {
   data: ChartData[];
@@ -21,7 +34,7 @@ interface ResultsChartProps {
 const BAR_HEIGHT = 30;
 const AXIS_HEIGHT_AND_PADDING = 40;
 
-export const metric_unit_map: Record<string, string> = {
+const metric_unit_map: Record<string, string> = {
   qps: "QPS",
   serial_latency_p99: "ms",
   recall: "%",
@@ -33,61 +46,49 @@ function isLessBetter(metric: string) {
   return ["load_duration", "serial_latency_p99"].includes(metric);
 }
 
-const getColor = (dbName: string) => {
-  const predefinedColors = {
-    AWSOpenSearch: "var(--color-orange-400)",
-    ElasticCloud: "var(--color-yellow-400)",
-    LanceDB: "var(--color-green-400)",
-    Milvus: "var(--color-teal-400)",
-    PgVector: "var(--color-primary)",
-    Pinecone: "var(--color-indigo-400)",
-    QdrantCloud: "var(--color-rose-400)",
-    Redis: "var(--color-rose-600)",
-    TiDB: "var(--color-indigo-600)",
-    Vespa: "var(--color-teal-600)", //
-    WeaviateCloud: "var(--color-green-600)", //
-    ZillizCloud: "var(--color-orange-600)",
-  };
-
-  if (dbName in predefinedColors) {
-    return predefinedColors[dbName as keyof typeof predefinedColors];
-  }
-
-  return "#000000";
-};
-
-function Tick({
-  tickProps,
-  dy,
-  textAnchor,
-}: {
-  tickProps: any;
-  dy: number;
-  textAnchor: string;
-}) {
-  const { x, y, payload } = tickProps;
-  return (
-    <g transform={`translate(${x},${y})`}>
-      <text
-        x={0}
-        y={0}
-        dy={dy}
-        textAnchor={textAnchor}
-        fill="currentColor"
-        className="text-xs"
-      >
-        {payload.value}
-      </text>
-    </g>
-  );
+function getCSSVar(variable: string) {
+  return typeof getComputedStyle !== "undefined"
+    ? getComputedStyle(document.documentElement).getPropertyValue(variable)
+    : "#000000";
 }
 
+const barColors = {
+  AWSOpenSearch: getCSSVar("--color-orange-400"),
+  ElasticCloud: getCSSVar("--color-yellow-400"),
+  LanceDB: getCSSVar("--color-green-400"),
+  Milvus: getCSSVar("--color-teal-400"),
+  PgVector: getCSSVar("--color-primary"),
+  Pinecone: getCSSVar("--color-indigo-400"),
+  QdrantCloud: getCSSVar("--color-rose-400"),
+  Redis: getCSSVar("--color-rose-600"),
+  TiDB: getCSSVar("--color-indigo-600"),
+  Vespa: getCSSVar("--color-teal-600"), //
+  WeaviateCloud: getCSSVar("--color-green-600"), //
+  ZillizCloud: getCSSVar("--color-orange-600"),
+} as const;
+
+const getBarColor = (dbName: string) => {
+  return dbName in barColors
+    ? barColors[dbName as keyof typeof barColors]
+    : "#000000";
+};
+
+const tooltipColors = {
+  background: getCSSVar("--color-white"),
+  border: getCSSVar("--color-gray-300"),
+  text: getCSSVar("--color-gray-600"),
+  darkBackground: getCSSVar("--color-gray-700"),
+  darkBorder: getCSSVar("--color-gray-700"),
+  darkText: getCSSVar("--color-gray-300"),
+} as const;
+
 export const ResultsChart = ({ data }: ResultsChartProps) => {
+  const isDarkMode = useIsDarkMode();
+
   if (!data.length) {
     return <div className="text-center py-4">No data available</div>;
   }
 
-  // Get available metrics from the data
   const availableMetrics = new Set<string>();
   data.forEach((item) => {
     item.metricsSet?.forEach((metric) => {
@@ -99,7 +100,6 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
 
   const metrics = metric_order.filter((metric) => availableMetrics.has(metric));
 
-  // Group data by case name
   const dataByCase = data.reduce(
     (acc, item) => {
       if (!acc[item.case_id]) {
@@ -146,6 +146,106 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
             const height =
               sortedData.length * BAR_HEIGHT + AXIS_HEIGHT_AND_PADDING;
 
+            const chartData = {
+              labels: sortedData.map((item) => item.db_label),
+              datasets: [
+                {
+                  data: sortedData.map(
+                    (item) => item[metric as keyof ChartData] as number,
+                  ),
+                  backgroundColor: sortedData.map((item) =>
+                    getBarColor(item.db_name),
+                  ),
+                  hoverBackgroundColor: sortedData.map((item) =>
+                    getBarColor(item.db_name),
+                  ),
+                },
+              ],
+            } satisfies BarChartData<"bar", number[], string>;
+
+            const options = {
+              indexAxis: "y",
+              responsive: true,
+              maintainAspectRatio: false,
+              animation: false,
+              layout: {
+                padding: {
+                  left: 50,
+                  right: 75,
+                  bottom: 10,
+                },
+              },
+              plugins: {
+                legend: {
+                  display: false,
+                },
+                tooltip: {
+                  callbacks: {
+                    title: (tooltipItems: TooltipItem<"bar">[]) => {
+                      const index = tooltipItems[0]?.dataIndex;
+                      if (index !== undefined) {
+                        return sortedData[index]?.db_label || "";
+                      }
+                      return "";
+                    },
+                    label: (tooltipItem: TooltipItem<"bar">) => {
+                      const value = tooltipItem.parsed.x;
+                      const index = tooltipItem.dataIndex;
+                      const item = sortedData[index];
+                      return [
+                        `${metric.replace("_", " ")} (${unit}): ${value}`,
+                        ...(item?.filename ? [`File: ${item.filename}`] : []),
+                      ];
+                    },
+                  },
+                  borderWidth: 1,
+                  backgroundColor: isDarkMode
+                    ? tooltipColors.darkBackground
+                    : tooltipColors.background,
+                  borderColor: isDarkMode
+                    ? tooltipColors.darkBorder
+                    : tooltipColors.border,
+                  titleColor: isDarkMode
+                    ? tooltipColors.darkText
+                    : tooltipColors.text,
+                  bodyColor: isDarkMode
+                    ? tooltipColors.darkText
+                    : tooltipColors.text,
+                },
+              },
+              scales: {
+                x: {
+                  border: {
+                    color: isDarkMode
+                      ? tooltipColors.darkBorder
+                      : tooltipColors.border,
+                  },
+                  grid: {
+                    color: isDarkMode
+                      ? tooltipColors.darkBorder
+                      : tooltipColors.border,
+                  },
+                  ticks: {
+                    font: {
+                      size: 12,
+                    },
+                    color: isDarkMode ? "white" : "black",
+                  },
+                },
+                y: {
+                  grid: {
+                    display: false,
+                  },
+                  ticks: {
+                    font: {
+                      size: 12,
+                    },
+                    color: isDarkMode ? "white" : "black",
+                  },
+                },
+              },
+            } satisfies ChartOptions<"bar">;
+
             return (
               <div key={metric} className="mb-6 print:break-inside-avoid">
                 <h4 className="text-md font-medium mb-1">
@@ -160,59 +260,7 @@ export const ResultsChart = ({ data }: ResultsChartProps) => {
                 </h4>
 
                 <div style={{ height: `${height}px` }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      layout="vertical"
-                      data={sortedData}
-                      margin={{ bottom: 10, left: 50, right: 75 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        horizontalPoints={Array.from(
-                          {
-                            length: Math.ceil(
-                              (height - AXIS_HEIGHT_AND_PADDING) / 100,
-                            ),
-                          },
-                          (_, i) => i * 100,
-                        )}
-                      />
-                      <XAxis
-                        type="number"
-                        tick={(props) => (
-                          <Tick dy={16} textAnchor="middle" tickProps={props} />
-                        )}
-                      />
-                      <YAxis
-                        allowDuplicatedCategory
-                        type="category"
-                        dataKey="db_label"
-                        width={240}
-                        tickCount={sortedData.length}
-                        tick={(props) => (
-                          <Tick dy={4} textAnchor="end" tickProps={props} />
-                        )}
-                      />
-                      <Tooltip content={<FilenameTooltip />} />
-                      <Bar
-                        dataKey={metric}
-                        name={`${metric.replace("_", " ")} (${unit})`}
-                        label={{
-                          position: "right",
-                          formatter: (entry: any) => entry,
-                          className: "text-xs fill-black dark:fill-white",
-                        }}
-                        isAnimationActive={false}
-                      >
-                        {sortedData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={getColor(entry.db_name)}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <Bar data={chartData} options={options} />
                 </div>
               </div>
             );

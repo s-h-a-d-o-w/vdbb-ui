@@ -9,7 +9,7 @@ import type {
 } from "../server-utils/results";
 import { ThemeToggle } from "./ThemeToggle";
 
-export const filterChartData = (
+const filterChartData = (
   data: ChartData[],
   selectedDbs: string[],
   selectedCase: number,
